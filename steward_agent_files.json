@@ -1,0 +1,15 @@
+{
+  "comment": "Manifest of miner-editable agent files (mirrors ninja's tau_agent_files.json). Up to 32 files. The benchmark/ harness, packaging, and this manifest are NOT editable.",
+  "entrypoint": "agent.py",
+  "entrypoint_symbol": "solve",
+  "files": [
+    "agent.py",
+    "agent/__init__.py",
+    "agent/llm.py",
+    "agent/context.py",
+    "agent/philosophy.py",
+    "agent/planner.py",
+    "agent/decider.py"
+  ],
+  "max_files": 32
+}
