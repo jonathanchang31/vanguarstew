@@ -6,6 +6,11 @@ All notable changes to this project are documented here. The format is based on
 
 ## [Unreleased]
 
+### Added
+- Benchmark ops: ship an operational curated repo set (`benchmark/repo_sets/curated.json`),
+  document the recent/obscure vetting rules, and expose built-in `curated` / `operational`
+  repo-set aliases so scoring entrypoints can select the reviewed config explicitly (#94).
+
 ### Fixed
 - Benchmark hygiene: `benchmark/taskgen.py::revealed_window` now parses changed-file
   lists from NUL-delimited `git show --name-only -z` output via a reusable

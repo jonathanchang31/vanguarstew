@@ -134,6 +134,10 @@ leakage-safe, versioned repo-set config. Open source (MIT), CI green on Python 3
 registered on gittensor. Next: held-out generalization scoring (finishing M3) and the fully
 agentic loop (M4). See [ROADMAP.md](ROADMAP.md).
 
+For multi-repo scoring, prefer the built-in operational repo set via
+`python -m scripts.run_eval --repo-set curated ...`; the shipped `example` repo set is schema
+documentation only and intentionally fails if used for scoring.
+
 ## Contributing
 
 Contributions are welcome — the surface is open. Start with [CONTRIBUTING.md](CONTRIBUTING.md)

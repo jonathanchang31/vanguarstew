@@ -34,6 +34,12 @@ _FREEZE_KEYS = {
 # A checked-in *starter* config with placeholder sources — replace with vetted repos before
 # real scoring. Named "example" (not "default") so it can't be mistaken for an operational set.
 EXAMPLE_REPO_SET = os.path.join(os.path.dirname(__file__), "repo_sets", "example.json")
+CURATED_REPO_SET = os.path.join(os.path.dirname(__file__), "repo_sets", "curated.json")
+_REPO_SET_ALIASES = {
+    "example": EXAMPLE_REPO_SET,
+    "curated": CURATED_REPO_SET,
+    "operational": CURATED_REPO_SET,
+}
 
 
 class RepoSetError(ValueError):
@@ -161,13 +167,20 @@ def validate_repo_set(data) -> RepoSet:
     )
 
 
+def resolve_repo_set_path(path: str) -> str:
+    """Resolve a repo-set path or built-in alias to a concrete file path."""
+    _require(isinstance(path, str) and path.strip(), "repo-set config path must be a non-empty string")
+    return _REPO_SET_ALIASES.get(path.strip().lower(), path)
+
+
 def load_repo_set(path) -> RepoSet:
     """Load and validate a repo-set config from `path`. Raises RepoSetError on any problem.
 
     `path` is required — there is no implicit default, so a config is always chosen on purpose
-    (never the placeholder starter by accident). Pass `EXAMPLE_REPO_SET` to load the shipped
-    example, or a curated config's path for a real scoring run.
+    (never the placeholder starter by accident). Pass `EXAMPLE_REPO_SET` / `"example"` to load
+    the shipped starter, or `CURATED_REPO_SET` / `"curated"` for the reviewed operational set.
     """
+    path = resolve_repo_set_path(path)
     _require(os.path.exists(path), f"repo-set config not found: {path}")
     try:
         with open(path, "r", encoding="utf-8") as f:

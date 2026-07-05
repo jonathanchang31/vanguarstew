@@ -164,3 +164,8 @@ def test_repo_set_replay_rejects_placeholder_sources():
             run_multi_replay(repo_set=cfg, agent_file=AGENT, n_tasks=1, horizon=1, seed=0)
     finally:
         shutil.rmtree(cfg_dir, ignore_errors=True)
+
+
+def test_builtin_example_alias_rejects_placeholder_sources():
+    with pytest.raises(RepoSetError, match="placeholder"):
+        run_multi_replay(repo_set="example", agent_file=AGENT, n_tasks=1, horizon=1, seed=0)

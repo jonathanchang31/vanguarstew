@@ -81,12 +81,17 @@ tasks. This is the most reusable asset the project produces.
 
 The list of repositories the benchmark replays is a **checked-in JSON config**, not a
 hardcoded array — so the curated, leakage-safe selection is reviewable and versioned. The
-shipped `benchmark/repo_sets/example.json` is a **starter/example** whose sources are
-placeholders (`OWNER/...`) — copy it and swap in vetted repos for a real run. `benchmark/
-repo_set.py` loads and **strictly validates** any config, at both the **top level** (only
-`name` / `description` / `strategy` / `repos` allowed; metadata must be strings; a stray or
-misspelled key is rejected) and per entry — since a leakage-safe set is only as trustworthy
-as its config.
+repo now ships both:
+
+- `benchmark/repo_sets/example.json` — a **starter/example** with placeholder `OWNER/...`
+  sources that must fail at execution time.
+- `benchmark/repo_sets/curated.json` — the reviewed **operational** set used for benchmark
+  scoring.
+
+`benchmark/repo_set.py` loads and **strictly validates** any config, at both the **top
+level** (only `name` / `description` / `strategy` / `repos` allowed; metadata must be
+strings; a stray or misspelled key is rejected) and per entry — since a leakage-safe set is
+only as trustworthy as its config.
 
 Each entry carries:
 
@@ -97,25 +102,38 @@ Each entry carries:
 - `freeze_window` — hints that map onto `run_replay`'s knobs: `recent_bias`, `rotation_seed`,
   and `after` / `before` / `min_history` bounds for freeze-point selection.
 
+The operational set is vetted with explicit tier rules:
+
+- **Recent tier**: the repo must show substantial default-branch activity after
+  `2025-09-01`, clone anonymously, and have enough history that a post-cutoff freeze window
+  still yields tasks.
+- **Obscure tier**: the repo must be materially lower-traffic than mainstream benchmark
+  targets, still clone anonymously, and still have enough history/maintenance churn to avoid
+  degenerate zero-task windows.
+- **All tiers**: pin only real public repos, give each entry a documented rationale in
+  `notes`, and reserve some entries as `held_out` so tuned-vs-generalization slices are
+  explicit and reviewable.
+
 The loader returns a typed `RepoSet` with `tuned()` / `held_out()` / `by_tier()` /
 `sources()` views, so the runner consumes a validated selection instead of ad-hoc paths:
 
-`load_repo_set(path)` takes a **required** path — there is no implicit default, so a config
-is always chosen deliberately (never the placeholder starter by accident). Use the exported
-`EXAMPLE_REPO_SET` to load the shipped example explicitly.
+`load_repo_set(path)` takes a **required** selection — there is no implicit default, so a
+config is always chosen deliberately (never the placeholder starter by accident). Use the
+exported constants or the built-in aliases `"example"` / `"curated"` / `"operational"`.
 
 ```python
-from benchmark.repo_set import EXAMPLE_REPO_SET, load_repo_set
-rs = load_repo_set("path/to/curated.json")   # or load_repo_set(EXAMPLE_REPO_SET) for the starter
+from benchmark.repo_set import CURATED_REPO_SET, EXAMPLE_REPO_SET, load_repo_set
+rs = load_repo_set("curated")                # same as CURATED_REPO_SET
 tuned   = [e.source for e in rs.tuned()]
 heldout = [e.source for e in rs.held_out()]
+starter = load_repo_set(EXAMPLE_REPO_SET)   # schema-valid example, not runnable for scoring
 ```
 
 Replay execution can consume that same config directly:
 
 ```bash
-python -m scripts.run_eval --repo-set path/to/curated.json --tasks 2 --horizon 5
-python -m scripts.run_eval --repo-set path/to/curated.json --held-out --tasks 2 --horizon 5
+python -m scripts.run_eval --repo-set curated --tasks 2 --horizon 5
+python -m scripts.run_eval --repo-set operational --held-out --tasks 2 --horizon 5
 ```
 
 The runner loads the config through `load_repo_set()`, replays the selected slice (`tuned`

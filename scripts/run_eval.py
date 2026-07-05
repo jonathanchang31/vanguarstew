@@ -38,7 +38,8 @@ def main() -> None:
     src.add_argument("--repos", nargs="+",
                      help="two or more git repos to replay and aggregate into a composite_mean")
     src.add_argument("--repo-set",
-                     help="validated repo-set JSON config to replay instead of ad-hoc repos")
+                     help="validated repo-set JSON config to replay instead of ad-hoc repos "
+                          "(path, or built-in alias: 'curated', 'operational', 'example')")
     ap.add_argument("--agent", default="agent.py", help="agent entrypoint file")
     ap.add_argument("--baseline", default=DEFAULT_BASELINE, choices=sorted(BASELINES),
                     help="reference opponent the challenger is judged against")

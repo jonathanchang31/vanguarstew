@@ -1,0 +1,73 @@
+{
+  "name": "curated-v1",
+  "description": "Operational leakage-safe repo set for benchmark scoring. Every source below is a real public repository vetted for anonymous clone access, sufficient history, and either post-cutoff recency or low-traffic obscurity.",
+  "strategy": "Recent tier repos must have substantial default-branch activity after 2025-09-01 so freeze points can be selected beyond common training cutoffs. Obscure tier repos are intentionally lower-traffic codebases with enough history to yield maintainer tasks while remaining less likely to be memorized. Held-out entries stay out of the tuned slice and are used only for generalization runs.",
+  "repos": [
+    {
+      "name": "click",
+      "source": "https://github.com/pallets/click",
+      "tier": "recent",
+      "held_out": false,
+      "freeze_window": {
+        "after": "2025-10-01",
+        "before": "2026-07-01",
+        "recent_bias": true,
+        "rotation_seed": 11,
+        "min_history": 40
+      },
+      "notes": "High-signal maintainer workflow with active 2026 history; recent-only freeze windows keep evaluation beyond common training cutoffs."
+    },
+    {
+      "name": "filelock",
+      "source": "https://github.com/tox-dev/filelock",
+      "tier": "recent",
+      "held_out": false,
+      "freeze_window": {
+        "after": "2025-09-01",
+        "before": "2026-07-01",
+        "recent_bias": true,
+        "rotation_seed": 5,
+        "min_history": 30
+      },
+      "notes": "Smaller active project with current maintenance activity; recent windows reduce memorization risk while preserving enough history for task generation."
+    },
+    {
+      "name": "face",
+      "source": "https://github.com/mahmoud/face",
+      "tier": "obscure",
+      "held_out": false,
+      "freeze_window": {
+        "before": "2026-07-01",
+        "rotation_seed": 17,
+        "min_history": 20
+      },
+      "notes": "Low-traffic CLI framework chosen for obscurity rather than popularity; enough history for replay without relying on post-cutoff activity."
+    },
+    {
+      "name": "httpx",
+      "source": "https://github.com/encode/httpx",
+      "tier": "recent",
+      "held_out": true,
+      "freeze_window": {
+        "after": "2025-09-01",
+        "before": "2026-03-31",
+        "recent_bias": true,
+        "rotation_seed": 23,
+        "min_history": 50
+      },
+      "notes": "Held-out active repo used to measure generalization on a codebase outside tuning; freeze window stays in the post-cutoff 2025-2026 span."
+    },
+    {
+      "name": "aenum",
+      "source": "https://github.com/ethanfurman/aenum",
+      "tier": "obscure",
+      "held_out": true,
+      "freeze_window": {
+        "before": "2026-06-15",
+        "rotation_seed": 3,
+        "min_history": 25
+      },
+      "notes": "Held-out obscure library with ongoing maintenance and modest popularity, reserved for generalization scoring."
+    }
+  ]
+}

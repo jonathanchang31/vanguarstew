@@ -15,9 +15,11 @@ if ROOT not in sys.path:
     sys.path.insert(0, ROOT)
 
 from benchmark.repo_set import (  # noqa: E402
+    CURATED_REPO_SET,
     EXAMPLE_REPO_SET,
     RepoSetError,
     load_repo_set,
+    resolve_repo_set_path,
     validate_repo_set,
 )
 
@@ -49,6 +51,23 @@ def test_shipped_example_config_loads_and_is_wellformed():
     # a leakage-safe set is a mix and reserves held-out repos for generalization
     assert rs.held_out() and rs.tuned()
     assert rs.by_tier("recent") and rs.by_tier("obscure")
+
+
+def test_shipped_curated_config_loads_and_is_operational():
+    rs = load_repo_set(CURATED_REPO_SET)
+    assert rs.name == "curated-v1"
+    assert rs.held_out() and rs.tuned()
+    assert rs.by_tier("recent") and rs.by_tier("obscure")
+    assert all("OWNER/" not in e.source for e in rs)
+    assert all(e.notes.strip() for e in rs)
+
+
+def test_repo_set_aliases_resolve_to_shipped_configs():
+    assert resolve_repo_set_path("example") == EXAMPLE_REPO_SET
+    assert resolve_repo_set_path("curated") == CURATED_REPO_SET
+    assert resolve_repo_set_path("operational") == CURATED_REPO_SET
+    assert load_repo_set("curated").name == "curated-v1"
+    assert load_repo_set("example").name == "example"
 
 
 def test_strict_top_level_validation():
@@ -120,6 +139,11 @@ def test_load_requires_explicit_path():
     # no implicit default: a config must always be chosen on purpose
     with pytest.raises(TypeError):
         load_repo_set()
+
+
+def test_load_rejects_blank_repo_set_selector():
+    with pytest.raises(RepoSetError, match="non-empty string"):
+        load_repo_set(" ")
 
 
 def test_load_reports_missing_file_and_bad_json(tmp_path):
